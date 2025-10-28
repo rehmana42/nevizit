@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000; // Changed to 3000 to match frontend expectation
+const PORT = process.env.PORT || 3004; // Changed to 3000 to match frontend expectation
 
 // MongoDB Connection
 mongoose
@@ -328,7 +328,60 @@ app.post("/api/recommend", async (req, res) => {
 //   });
 // });
 
+app.post("/api/ratingbase", async (req, res) => {
+  const { email } = req.body;
 
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    // Make a POST request to the Render-hosted Python service
+    const response = await axios.post(
+      "https://python2-mern.onrender.com/recommend_by_email",
+      { email },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        timeout: 80000, // Optional: Set a timeout (10 seconds) to avoid hanging
+      }
+    );
+
+    const recommendations = response.data;
+
+    // Validate that the response is an array
+    if (!Array.isArray(recommendations)) {
+      throw new Error("Response from Python service is not an array");
+    }
+
+    res.status(200).json({ recommendations });
+  } catch (error) {
+    console.error("Error fetching recommendations:", error.message);
+
+    // Handle specific axios errors
+    if (error.response) {
+      // The request was made and the server responded with a status code outside 2xx
+      return res.status(500).json({
+        error: "Failed to fetch recommendations from Python service",
+        details: error.response.data,
+        status: error.response.status,
+      });
+    } else if (error.request) {
+      // The request was made but no response was received
+      return res.status(500).json({
+        error: "No response from Python service",
+        details: error.message,
+      });
+    } else {
+      // Something else went wrong (e.g., parsing error, network issue)
+      return res.status(500).json({
+        error: "Error processing recommendation request",
+        details: error.message,
+      });
+    }
+  }
+});
 // 📌 Handle Undefined Routes
 app.use((req, res) => {
   res.status(404).json({ message: "404 Not Found" });
