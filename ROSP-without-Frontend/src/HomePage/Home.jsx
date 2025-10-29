@@ -1,5 +1,4 @@
 
-
 import Explore from "./Explore/Explore";
 import AllCircles from "./Circles/AllCircles"
 import Header from "./Header/Header";
@@ -7,7 +6,7 @@ import AllEvent from "./Event/AllEvent";
 import AllWeather from "./Weather/AllWeather";
 import AllFooter from "./Footer/AllFooter";
 import ScrollToTop from "../ScrollTop";
-
+import Recommendations from "./Recommendations";
 
 export default function Home() {
 
@@ -21,7 +20,7 @@ export default function Home() {
                     <Explore />
                 </div>
                 <AllCircles />
-                 
+                 <Recommendations/>
                 <AllEvent />
                 <AllWeather />
                 <AllFooter />
